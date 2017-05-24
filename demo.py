@@ -124,7 +124,7 @@ for image_path in ins:
 
 	img = cv2.resize(img,(trg_size, trg_size))
 	cv2.imwrite("tmp_ims/" + imname + ".png",img)
-close(ins)
+ins.close()
 #####CNN fitting ############################## 
 
 # load net

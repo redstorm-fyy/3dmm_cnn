@@ -24,7 +24,7 @@ def convert(data):
 	new = data.reshape(data.shape[0],1).astype('float64')
 	return new
 if not os.path.exists('01_MorphableModel.mat'):
-	print "Cannot find '01_MorphableModel.mat'"
+	print ("Cannot find '01_MorphableModel.mat'")
 	exit(0)
 model = scipy.io.loadmat('01_MorphableModel.mat',squeeze_me=True,struct_as_record=False)
 mod_struct = scipy.io.loadmat('mod_struct.mat',squeeze_me=True,struct_as_record=False)
@@ -56,7 +56,7 @@ innerLandmarkIndex = mod_struct.innerLandmarkIndex
 outerLandmarkIndex = mod_struct.outerLandmarkIndex
 #% Trimming faces
 #ind_inv = zeros(1,length(model.shapeMU)/3);
-ind_inv = np.zeros(model['shapeMU'].shape[0]/3)
+ind_inv = np.zeros(model['shapeMU'].shape[0]//3)
 #ind_inv(mod_struct.vertex_indices) = 1: length(mod_struct.vertex_indices);
 ind_inv[vertex_indices-1] = np.arange(1,vertex_indices.shape[0]+1)
 #faces = ind_inv(model.tl);
