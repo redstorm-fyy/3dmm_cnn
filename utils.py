@@ -29,7 +29,7 @@ def projectBackBFM(model,features):
 	S = np.matmul(model.shapePC, alpha)
 	## Adding back average shape
 	S = model.shapeMU + S
-	numVert = S.shape[0]/3
+	numVert = S.shape[0]//3
 	# (Texture)
 	beta = model.texEV * 0
 	for it in range(0, 99):
