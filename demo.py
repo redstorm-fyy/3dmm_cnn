@@ -52,7 +52,7 @@ trg_size = 224
 #### Initiate ################################
 predictor_path = "dlib_model/shape_predictor_68_face_landmarks.dat"
 if len(sys.argv) < 3 or len(sys.argv) > 5 :
-		print "Usage: python demo.py <inputList> <outputDir> <needCrop> <useLM>"
+		print ("Usage: python demo.py <inputList> <outputDir> <needCrop> <useLM>")
 		exit(1)
 fileList = sys.argv[1]
 data_out = sys.argv[2]
@@ -77,10 +77,10 @@ if needCrop:
 		predictor = dlib.shape_predictor(predictor_path)
 
 ##### Prepare images ##############################
-with open(fileList, "r") as ins:
-    for image_path in ins:
+ins = open(fileList, "r")
+for image_path in ins:
 	if len(image_path) < 6:
-		print 'Skipping ' + image_path + ' file path too short'
+		print ('Skipping ' + image_path + ' file path too short')
 		continue
 	image_path = image_path[:-1]
 	print("> Prepare image "+image_path + ":")
@@ -95,10 +95,10 @@ with open(fileList, "r") as ins:
 		dets = detector(img, 1)
 		print(">     Number of faces detected: {}".format(len(dets)))
 		if len(dets) == 0:
-			print '> Could not detect the face, skipping the image...' + image_path
+			print ('> Could not detect the face, skipping the image...' + image_path)
 			continue
 		if len(dets) > 1:
-			print "> Process only the first detected face!"
+			print ("> Process only the first detected face!")
 		detected_face = dets[0]
 		cv2.rectangle(img2, (detected_face.left(),detected_face.top()), \
 			(detected_face.right(),detected_face.bottom()), (0,0,255),2)
@@ -108,7 +108,7 @@ with open(fileList, "r") as ins:
 		fileout.close()
 		## If we are using landmarks to crop
 		if useLM:
-			print "> cropByLM "
+			print ("> cropByLM ")
 			shape = predictor(dlib_img, detected_face)
 			nLM = shape.num_parts
 			fileout = open("tmp_detect/"+imname+".pts","w")
@@ -118,12 +118,13 @@ with open(fileList, "r") as ins:
 			fileout.close()
 			img = utils.cropByLM(img, shape, img2)
 		else:
-			print "> cropByFaceDet "
+			print ("> cropByFaceDet ")
 			img = utils.cropByFaceDet(img, detected_face, img2)
 		cv2.imwrite("tmp_detect/"+imname+"_detect.png",img2)
 
 	img = cv2.resize(img,(trg_size, trg_size))
 	cv2.imwrite("tmp_ims/" + imname + ".png",img)
+close(ins)
 #####CNN fitting ############################## 
 
 # load net
@@ -131,8 +132,8 @@ try:
 	caffe.set_mode_gpu()
 	caffe.set_device(GPU_ID)
 except Exception as ex:
-	print '> Could not setup Caffe in GPU ' +str(GPU_ID) + ' - Error: ' + ex
-	print '> Reverting into CPU mode'
+	print ('> Could not setup Caffe in GPU ' +str(GPU_ID) + ' - Error: ' + ex)
+	print ('> Reverting into CPU mode')
 	caffe.set_mode_cpu()
 ## Opening mean average image
 proto_data = open(mean_path, "rb").read()
@@ -146,12 +147,12 @@ transformer.set_transpose('data', (2,0,1))
 transformer.set_channel_swap('data', (2,1,0))
 transformer.set_raw_scale('data', 255.0)
 transformer.set_mean('data',mean)
-print '> CNN Model loaded to regress 3D Shape and Texture!'
+print ('> CNN Model loaded to regress 3D Shape and Texture!')
 ## Loading the Basel Face Model to write the 3D output
 model = scipy.io.loadmat(BFM_path,squeeze_me=True,struct_as_record=False)
 model = model["BFM"]
 faces = model.faces-1
-print '> Loaded the Basel Face Model to write the 3D output!'
+print ('> Loaded the Basel Face Model to write the 3D output!')
 ## For loop over the input images
 count = 0
 listImgs = glob("tmp_ims/*.png")
@@ -159,7 +160,7 @@ for image_path in listImgs:
 	count = count + 1
 	fig_name = ntpath.basename(image_path)
 	outFile = data_out + "/" + fig_name[:-4]
-	print '> Processing image: ', image_path, ' ', fig_name, ' ', str(count) + '/' + str(len(listImgs))
+	print ('> Processing image: ', image_path, ' ', fig_name, ' ', str(count) + '/' + str(len(listImgs)))
 	net.blobs['data'].reshape(1,3,trg_size,trg_size)
 	im = caffe.io.load_image(image_path)
 	## Transforming the image into the right format
@@ -176,5 +177,5 @@ for image_path in listImgs:
 	## Basel Face Model (Shape)
 	##################################
 	S,T = utils.projectBackBFM(model,features)
-	print '> Writing 3D file in: ', outFile + '.ply'
+	print ('> Writing 3D file in: ', outFile + '.ply')
 	utils.write_ply(outFile + '.ply', S, T, faces)
